@@ -300,23 +300,17 @@ O dashboard foi pensado para responder perguntas como:
 
 ```text
 ┌─────────────────┐ ┌─────────────────┐
-│   Total Leads   │ │  Leads Ativos   │
+│   Total Leads   │ │  Novos Leads    │
 └─────────────────┘ └─────────────────┘
 
-┌─────────────────┐ ┌─────────────────┐
-│  Novos Leads    │ │   Qualificados  │
-└─────────────────┘ └─────────────────┘
+┌─────────────────┐ ┌────────────────────────┐
+│ Funil de Vendas │ │ Distribuição por etapa │
+└─────────────────┘ └────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│            Evolução de leads            │
+└─────────────────────────────────────────┘
 ```
-
-### Visualizações
-
-* 📊 Distribuição de leads por etapa
-* 📈 Evolução diária de leads
-* 🔄 Evolução por etapa
-* 🎯 Funil comercial
-* 📋 Lista dos leads atuais
-* 📅 Filtros por período
-* 🏷️ Filtros por etapa
 
 ---
 
