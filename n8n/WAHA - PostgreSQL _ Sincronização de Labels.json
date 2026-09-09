@@ -1,0 +1,341 @@
+{
+  "name": "WAHA - PostgreSQL | Sincronização de Labels",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "f2da85d7-5930-4e86-98a0-c4449f38c40c",
+      "name": "Sincronizar a cada 6h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -688,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const chat = item.json;\n\n  return {\n    json: {\n      chat_id: chat.id?._serialized ?? null,\n      name: chat.name ?? null,\n      label_id: chat.label_id ?? null\n    }\n  };\n});"
+      },
+      "id": "a2956f85-b385-471a-8c88-a989d10622f4",
+      "name": "Normalizar contatos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        192
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst unique = new Map();\n\nfor (const item of items) {\n  const chatId = item.json.chat_id;\n  if (!chatId) continue;\n\n  const key = `${chatId}|${item.json.label_id}`;\n\n  unique.set(key, {\n    json: {\n      chat_id: chatId,\n      name: item.json.name ?? null,\n      label_id: item.json.label_id\n    }\n  });\n}\n\nreturn [...unique.values()];"
+      },
+      "id": "337b9078-1098-4296-966c-7cfcfed19bcb",
+      "name": "Remover duplicados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO contacts (\n  chat_id,\n  name,\n  updated_at\n)\nVALUES (\n  $1,\n  $2,\n  NOW()\n)\nON CONFLICT (chat_id)\nDO UPDATE SET\n  name = COALESCE(EXCLUDED.name, contacts.name),\n  updated_at = NOW();\n\nINSERT INTO contact_history (\n  chat_id,\n  name,\n  label_id,\n  observed_at\n)\nVALUES (\n  $1,\n  $2,\n  $3,\n  NOW()\n);",
+        "options": {
+          "queryReplacement": "={{ [$json.chat_id, $json.name, $json.label_id] }}"
+        }
+      },
+      "id": "5b1b1ce0-9e94-4062-8b91-16477607919c",
+      "name": "PostgreSQL - Contato + Histórico",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        336,
+        192
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "m8CEoQqTo4duzkRv",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://172.18.0.4:3000/api/${sessao}/labels/9/chats",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "SUA-API-KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5033997a-1686-45f5-9f7f-65d966e24227",
+      "name": "WAHA - Novo Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://172.18.0.4:3000/api/${sessao}/labels/10/chats",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "SUA-API-KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4c2d3e6c-d85d-49f6-bba6-94b43c281d81",
+      "name": "WAHA - Em atendimento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://172.18.0.4:3000/api/${sessao}/labels/11/chats",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "SUA-API-KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8c75e1c2-06e2-4343-ae33-e59266780d83",
+      "name": "WAHA - Fechado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e42851bc-ff42-45b9-baa5-26a3907921ba",
+              "name": "label_id",
+              "value": "9",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "9f49edba-0bbe-4b62-8187-266fef095029",
+      "name": "Adicionar Label Novo Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "label-2",
+              "name": "label_id",
+              "value": "10",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "ec05222f-86ea-449b-86b1-8730ba2574c2",
+      "name": "Adicionar Label Em atendimento",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "label-3",
+              "name": "label_id",
+              "value": "11",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "dc600e95-55dc-437b-908f-6035fde227a6",
+      "name": "Adicionar Label Fechado",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        384
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Sincronizar a cada 6h": {
+      "main": [
+        [
+          {
+            "node": "WAHA - Novo Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "WAHA - Em atendimento",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "WAHA - Fechado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar contatos": {
+      "main": [
+        [
+          {
+            "node": "Remover duplicados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remover duplicados": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL - Contato + Histórico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAHA - Novo Lead": {
+      "main": [
+        [
+          {
+            "node": "Adicionar Label Novo Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAHA - Em atendimento": {
+      "main": [
+        [
+          {
+            "node": "Adicionar Label Em atendimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAHA - Fechado": {
+      "main": [
+        [
+          {
+            "node": "Adicionar Label Fechado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adicionar Label Novo Lead": {
+      "main": [
+        [
+          {
+            "node": "Normalizar contatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adicionar Label Em atendimento": {
+      "main": [
+        [
+          {
+            "node": "Normalizar contatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adicionar Label Fechado": {
+      "main": [
+        [
+          {
+            "node": "Normalizar contatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f57fcfe1-167a-4888-83c2-b19af6a10d71",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3cbd5cf368392060d0b56963e991904f6a65f2be53ee8a062b5dabc43ffa24f0"
+  },
+  "nodeGroups": [],
+  "id": "Dgamwi3gTJmxQLl2",
+  "tags": []
+}

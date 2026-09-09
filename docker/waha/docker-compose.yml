@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: waha
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      - WHATSAPP_DEFAULT_ENGINE=WEBJS
+      - WHATSAPP_HOOK_URL=http://n8n:5678/webhook/waha
+      - WHATSAPP_HOOK_EVENTS=message
+      - WAHA_DASHBOARD_USERNAME=admin
+      - WAHA_DASHBOARD_PASSWORD=SUA-SENHA
+      - WHATSAPP_API_KEY=SUA-API-KEY
+
+    volumes:
+      - waha_data:/app/.sessions
+
+    networks:
+      - backend
+
+volumes:
+  waha_data:
+
+networks:
+  backend:
+    external: true
