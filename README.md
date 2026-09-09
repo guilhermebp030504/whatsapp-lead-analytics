@@ -450,39 +450,6 @@ Isso evita depender de `localhost` para comunicação entre containers.
 
 ---
 
-# 📁 Estrutura do projeto
-
-```text
-whatsapp-lead-analytics/
-│
-├── README.md
-│
-├── docker/
-│   ├── postgres/
-│   │   └── docker-compose.yml
-│   │
-│   └── metabase/
-│       └── docker-compose.yml
-│
-├── database/
-│   ├── 01_tables.sql
-│   ├── 02_indexes.sql
-│   ├── 03_views.sql
-│   └── 04_seed.sql
-│
-├── n8n/
-│   └── whatsapp-label-sync.json
-│
-├── metabase/
-│   └── dashboard.md
-│
-└── docs/
-    ├── architecture.md
-    └── screenshots/
-```
-
----
-
 # 🚀 Como executar
 
 ## Pré-requisitos
