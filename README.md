@@ -594,26 +594,6 @@ Além da implementação técnica, o projeto trabalha um conceito importante:
 
 ---
 
-# 🎓 Principais conceitos aplicados
-
-* Process Automation
-* BPM
-* ETL
-* REST APIs
-* Data Integration
-* Data Modeling
-* PostgreSQL
-* SQL
-* Window Functions
-* Historical Data
-* Business Intelligence
-* Data Analytics
-* Docker
-* Container Networking
-* Workflow Automation
-
----
-
 # 👨‍💻 Autor
 
 **Guilherme Brito Pizzollo**
