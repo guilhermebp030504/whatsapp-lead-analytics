@@ -478,13 +478,17 @@ docker network create backend
 Criar os bancos necessários:
 
 ```text
-whatsapp_bi
+postgres
+lead_automacao
 metabase
+n8n
 ```
 
-O banco `whatsapp_bi` contém os dados do projeto.
+O banco `lead_automacao` contém os dados do projeto.
 
 O banco `metabase` é utilizado internamente pelo próprio Metabase.
+
+O banco `n8n` é utilizado internamente pelo próprio N8n.
 
 ---
 
@@ -500,11 +504,10 @@ na seguinte ordem:
 
 ```text
 01_tables.sql
-02_indexes.sql
-03_views.sql
+02_views.sql
 ```
 
-O `04_seed.sql` é opcional e serve para dados de demonstração.
+O `03_seed.sql` é opcional e serve para dados de demonstração.
 
 ---
 
@@ -513,7 +516,7 @@ O `04_seed.sql` é opcional e serve para dados de demonstração.
 Importar:
 
 ```text
-n8n/whatsapp-label-sync.json
+n8n/WAHA - PostgreSQL _ Sincronização de Labels.json
 ```
 
 Depois configurar:
@@ -533,7 +536,7 @@ O Metabase deve apontar para o PostgreSQL:
 ```text
 Host: postgres
 Port: 5432
-Database: whatsapp_bi
+Database: lead_automacao
 ```
 
 A interface web pode ser disponibilizada em uma porta do host, por exemplo:
@@ -611,20 +614,11 @@ Além da implementação técnica, o projeto trabalha um conceito importante:
 
 ---
 
-# ⚠️ Observação
-
-Este projeto possui finalidade **educacional e de portfólio**.
-
-A integração com WhatsApp utiliza WAHA como camada de acesso à plataforma. Para ambientes produtivos, é importante avaliar os requisitos, políticas e alternativas oficiais de integração disponibilizadas pelo WhatsApp/Meta.
-
----
-
 # 👨‍💻 Autor
 
 **Guilherme Brito Pizzollo**
 
 Especialista em Automação de Processos (BPM)
-Integração de ERPs, APIs e SQL
 Node.js & PostgreSQL
 
 ---
